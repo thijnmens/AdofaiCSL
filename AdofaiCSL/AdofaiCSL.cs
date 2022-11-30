@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Device;
 using UnityModManagerNet;
 
 namespace AdofaiCSL
@@ -31,6 +32,7 @@ namespace AdofaiCSL
                 };
 
                 songs = Directory.GetDirectories(customSongsPath);
+                Array.Sort(songs, StringComparer.CurrentCultureIgnoreCase);
 
                 modEntry.OnGUI += OnGUI;
 
@@ -60,6 +62,11 @@ namespace AdofaiCSL
                         if (clicked)
                         {
                             files.ToList().Remove($@"{song}{Path.DirectorySeparatorChar}backup.adofai");
+                            RDUtils.SetGarbageCollectionEnabled(enabled: true);
+                            GCS.checkpointNum = 0;
+                            Persistence.DeleteSavedProgress();
+                            GCS.sceneToLoad = $@"{files.First()}";
+                            scrUIController.instance.WipeToBlack(WipeDirection.StartsFromRight);
                             ADOBase.controller.LoadCustomWorld($@"{files.First()}");
                         }
                     }
@@ -69,6 +76,8 @@ namespace AdofaiCSL
                     // Mappack
                     GUILayout.Label(song.Split('\\').Last());
                     string[] packLevels = Directory.GetDirectories(song);
+                    GUILayout.BeginHorizontal();
+                    int i = 0;
                     foreach (string packSong in packLevels)
                     {
                         if (packSong.Split('\\').Last().ToLower().Contains(query))
@@ -76,15 +85,27 @@ namespace AdofaiCSL
                             files = Directory.GetFiles($@"{packSong}{Path.DirectorySeparatorChar}", "*.adofai");
                             if (files.Length > 0)
                             {
-                                bool clicked = GUILayout.Button(packSong.Split('\\').Last());
+                                if (i % 3 == 0)
+                                {
+                                    GUILayout.EndHorizontal();
+                                    GUILayout.BeginHorizontal();
+                                }
+                                bool clicked = GUILayout.Button(packSong.Split('\\').Last(), GUILayout.Width(Convert.ToInt16((double)UnityEngine.Screen.width / 6.2d)));
                                 if (clicked)
                                 {
                                     files.ToList().Remove($@"{packSong}{Path.DirectorySeparatorChar}backup.adofai");
+                                    RDUtils.SetGarbageCollectionEnabled(enabled: true);
+                                    GCS.checkpointNum = 0;
+                                    Persistence.DeleteSavedProgress();
+                                    GCS.sceneToLoad = $@"{files.First()}";
+                                    scrUIController.instance.WipeToBlack(WipeDirection.StartsFromRight);
                                     ADOBase.controller.LoadCustomWorld($@"{files.First()}");
                                 }
+                                i++;
                             }
                         }
-                    };
+                    }
+                    GUILayout.EndHorizontal();
                     GUILayout.Label("Custom Levels");
                 }
             }
