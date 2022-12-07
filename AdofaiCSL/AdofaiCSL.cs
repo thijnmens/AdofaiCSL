@@ -13,6 +13,7 @@ namespace AdofaiCSL
         public static UnityModManager.ModEntry mod;
         public static string[] songs;
         public static string query = "";
+        public static bool playingCustom = false;
 
         public static bool Load(UnityModManager.ModEntry modEntry)
         {
@@ -61,6 +62,7 @@ namespace AdofaiCSL
                         bool clicked = GUILayout.Button(song.Split('\\').Last());
                         if (clicked)
                         {
+                            playingCustom = true;
                             files.ToList().Remove($@"{song}{Path.DirectorySeparatorChar}backup.adofai");
                             RDUtils.SetGarbageCollectionEnabled(enabled: true);
                             GCS.checkpointNum = 0;
@@ -90,9 +92,10 @@ namespace AdofaiCSL
                                     GUILayout.EndHorizontal();
                                     GUILayout.BeginHorizontal();
                                 }
-                                bool clicked = GUILayout.Button(packSong.Split('\\').Last(), GUILayout.Width(Convert.ToInt16((double)UnityEngine.Screen.width / 6.2d)));
+                                bool clicked = GUILayout.Button(packSong.Split('\\').Last(), GUILayout.Width(915/3));
                                 if (clicked)
                                 {
+                                    playingCustom = true;
                                     files.ToList().Remove($@"{packSong}{Path.DirectorySeparatorChar}backup.adofai");
                                     RDUtils.SetGarbageCollectionEnabled(enabled: true);
                                     GCS.checkpointNum = 0;
