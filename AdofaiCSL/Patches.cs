@@ -16,7 +16,7 @@ namespace AdofaiCSL
                     RDUtils.SetGarbageCollectionEnabled(enabled: true);
                     ADOBase.audioManager.StopLoadingMP3File();
                     AdofaiCSL.playingCustom = false;
-                    ADOBase.LoadScene(GCNS.sceneSplash);
+                    ADOBase.LoadScene(GCNS.sceneLevelSelect);
                     return false;
                 }
                 return true;
