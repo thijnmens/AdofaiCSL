@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 using UnityModManagerNet;
 
 namespace AdofaiCSL
@@ -31,20 +30,56 @@ namespace AdofaiCSL
                 string[] songs = Directory.GetDirectories(customSongsPath);
                 foreach (string songPath in songs)
                 {
-                    List<string> files = Directory.GetFiles(songPath, "*.adofai").ToList();
-                    files.Remove(Path.Combine(songPath, "backup.adofai"));
-                    if (files.Count == 0)
+                    if (Directory.GetFiles(songPath, "*.pack").Length > 0)
                     {
-                        mod.Logger.Error($"Cannot find .adofai file in directory \"{songPath}\"");
+                        // Pack
+                        string[] packSongs = Directory.GetDirectories(songPath);
+                        foreach (string packSongPath in packSongs)
+                        {
+                            List<string> files = Directory.GetFiles(packSongPath, "*.adofai").ToList();
+                            files.Remove(Path.Combine(packSongPath, "backup.adofai"));
+                            if (files.Count == 1)
+                            {
+                                // Rename File
+                                string newFile = Path.Combine(packSongPath, "main.adofai");
+                                File.Move(files[0], newFile);
+                            }
+                            else
+                            {
+                                // Warn user about main.adofai missing
+                                if (!File.Exists(Path.Combine(packSongPath, "main.adofai")))
+                                {
+                                    // multiple files and no main.adofai
+                                    mod.Logger.Critical($"Multiple .adofai files found in \"{packSongPath}\". Please rename the correct file to \"main.adofai\"");
+                                }
+                            }
+                        }
                     }
-                    else if (files.Count == 1)
+                    else if (Directory.GetFiles(songPath, "*.adofai").Length > 0)
                     {
-                        string newFile = Path.Combine(songPath, "main.adofai");
-                        File.Move(files[0], newFile);
+                        // Song
+                        List<string> files = Directory.GetFiles(songPath, "*.adofai").ToList();
+                        files.Remove(Path.Combine(songPath, "backup.adofai"));
+                        if (files.Count == 1)
+                        {
+                            // Rename File
+                            string newFile = Path.Combine(songPath, "main.adofai");
+                            File.Move(files[0], newFile);
+                        }
+                        else
+                        {
+                            // Warn user about main.adofai missing
+                            if (!File.Exists(Path.Combine(songPath, "main.adofai")))
+                            {
+                                // multiple files and no main.adofai
+                                mod.Logger.Critical($"Multiple .adofai files found in \"{songPath}\". Please rename the correct file to \"main.adofai\"");
+                            }
+                        }
                     }
                     else
                     {
-                        mod.Logger.Warning($"Multiple .adofai files found in \"{songPath}\". Please make sure the correct file is called \"main.adofai\"");
+                        // No .pack or .adofai file
+                        mod.Logger.Error($"Cannot find .adofai or .pack file in directory \"{songPath}\"");
                     }
                 }
 

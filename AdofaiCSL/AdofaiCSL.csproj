@@ -81,7 +81,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\Mods\AdofaiCSL" /Y
+    <PostBuildEvent>tasklist /fi "ImageName eq A Dance of Fire and Ice.exe" /fo csv 2&gt;NUL | find /I "A Dance of Fire and Ice.exe"&gt;NUL
+if "%25ERRORLEVEL%25"=="0" taskkill /IM "A Dance of Fire and Ice.exe" /F
+copy $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\A Dance of Fire and Ice\Mods\AdofaiCSL" /Y
 start steam://rungameid/977950</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
