@@ -1,6 +1,7 @@
 ﻿using ADOFAI;
 using GDMiniJSON;
 using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -91,7 +92,7 @@ namespace AdofaiCSL
         private static CustomLevelTile CreateCustomPackTile(ref scnCLS instance, string songPath, out FolderDataCLS packData)
         {
             // Add tile
-            GameObject packTile = Object.Instantiate(instance.tilePrefab, instance.floorContainer);
+            GameObject packTile = UnityEngine.Object.Instantiate(instance.tilePrefab, instance.floorContainer);
             packTile.name = "CustomTile";
             packTile.GetComponent<scrFloor>().topGlow.gameObject.SetActive(value: true);
             packTile.GetComponent<scrFloor>().isLandable = true;
@@ -99,12 +100,23 @@ namespace AdofaiCSL
             CustomLevelTile CPTile = packTile.GetComponent<CustomLevelTile>();
 
             // Configure tile
-            Dictionary<string, string> packConfig = Config.ReadPack(Directory.GetFiles(songPath, "*.pack").First());
+            Dictionary<string, string> packConfig = Config.Read(Directory.GetFiles(songPath, "*.pack").First());
 
             CPTile.levelKey = $"CustomFolder:{songPath.Split(Path.DirectorySeparatorChar).Last()}";
             CPTile.title.text = packConfig["title"].Trim();
             CPTile.artist.text = packConfig["artist"].Trim();
-            CPTile.image.enabled = true;
+            CPTile.image.enabled = packConfig.ContainsKey("image");
+
+            string image = "";
+            if (packConfig.ContainsKey("image"))
+            {
+                image = packConfig["image"].Trim();
+            }
+            string icon = "";
+            if (packConfig.ContainsKey("icon"))
+            {
+                icon = packConfig["icon"].Trim();
+            }
 
             packData = new FolderDataCLS(
                 packConfig["title"],
@@ -112,8 +124,8 @@ namespace AdofaiCSL
                 packConfig["artist"],
                 packConfig["author"],
                 packConfig["description"],
-                packConfig["image"],
-                packConfig["icon"],
+                image,
+                icon,
                 packConfig["color"].HexToColor()
             );
 
@@ -127,11 +139,17 @@ namespace AdofaiCSL
             [HarmonyPostfix]
             private static void Postfix(scnCLS __instance)
             {
+                bool featuredLevelsMode = (bool)AccessTools.Field(typeof(scnCLS), "featuredLevelsMode").GetValue(__instance);
+                if (featuredLevelsMode)
+                {
+                    return;
+                }
+
                 Dictionary<string, CustomLevelTile> loadedLevelTiles = (Dictionary<string, CustomLevelTile>)AccessTools.Field(typeof(scnCLS), "loadedLevelTiles").GetValue(__instance);
                 Dictionary<string, bool> loadedLevelIsDeleted = (Dictionary<string, bool>)AccessTools.Field(typeof(scnCLS), "loadedLevelIsDeleted").GetValue(__instance);
                 Dictionary<string, string> loadedLevelDirs = (Dictionary<string, string>)AccessTools.Field(typeof(scnCLS), "loadedLevelDirs").GetValue(__instance);
 
-                tilesAdded = 0;
+                tilesAdded = AdofaiCSL.offset + 1;
                 workshoplevels = __instance.loadedLevels.Count;
 
                 string[] songs = Directory.GetDirectories(AdofaiCSL.customSongsPath);
@@ -181,6 +199,16 @@ namespace AdofaiCSL
 
                 __instance.gemTop.MoveY(__instance.gemTopY + tilesAdded - 1);
                 __instance.gemTopY += tilesAdded - 1;
+            }
+        }
+
+        [HarmonyPatch(typeof(scnEditor), "QuitToMenu")]
+        private static class scnEditor_QuitToMenu_Patch
+        {
+            [HarmonyPrefix]
+            private static void Prefix(scnEditor __instance)
+            {
+                GCS.customLevelPaths = null;
             }
         }
 

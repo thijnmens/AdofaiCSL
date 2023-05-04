@@ -6,7 +6,7 @@ namespace AdofaiCSL
 {
     internal static class Config
     {
-        internal static Dictionary<string, string> ReadPack(string configPath)
+        internal static Dictionary<string, string> Read(string configPath)
         {
             var config = new Dictionary<string, string>();
 
@@ -31,6 +31,24 @@ namespace AdofaiCSL
                 }
             }
             return config;
+        }
+
+        internal static void Write(string configPath, Dictionary<string, string> data)
+        {
+            using (StreamWriter writer = new StreamWriter(configPath))
+            {
+                try
+                {
+                    foreach (KeyValuePair<string, string> kvp in data)
+                    {
+                        writer.WriteLine($"{kvp.Key} = {kvp.Value}");
+                    }
+                }
+                catch
+                {
+                    AdofaiCSL.mod.Logger.Error($"Failed to write config to \"{configPath}\"");
+                }
+            }
         }
     }
 }
