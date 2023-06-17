@@ -10,15 +10,15 @@ namespace AdofaiCSL
         {
             var config = new Dictionary<string, string>();
 
-            using (StreamReader reader = new StreamReader(configPath))
+            using (var reader = new StreamReader(configPath))
             {
                 try
                 {
-                    string data = reader.ReadToEnd().Trim();
-                    string[] lines = data.Split('\n');
-                    foreach (string line in lines)
+                    var data = reader.ReadToEnd().Trim();
+                    var lines = data.Split('\n');
+                    foreach (var line in lines)
                     {
-                        string[] lineData = line.Split('=')
+                        var lineData = line.Split('=')
                             .Select(_ => _.Trim())
                             .Select(_ => _.ToLower())
                             .ToArray();
@@ -30,19 +30,17 @@ namespace AdofaiCSL
                     AdofaiCSL.mod.Logger.Error($"Failed to parse config in \"{configPath}\"");
                 }
             }
+
             return config;
         }
 
         internal static void Write(string configPath, Dictionary<string, string> data)
         {
-            using (StreamWriter writer = new StreamWriter(configPath))
+            using (var writer = new StreamWriter(configPath))
             {
                 try
                 {
-                    foreach (KeyValuePair<string, string> kvp in data)
-                    {
-                        writer.WriteLine($"{kvp.Key} = {kvp.Value}");
-                    }
+                    foreach (var kvp in data) writer.WriteLine($"{kvp.Key} = {kvp.Value}");
                 }
                 catch
                 {

@@ -12,11 +12,8 @@ namespace AdofaiCSL
             {
                 // LoadAssembly("Mods/AdofaiSRM/Newtonsoft.Json.dll");
 
-                bool success = AdofaiCSL.Load(modEntry);
-                if (!success)
-                {
-                    return false;
-                }
+                var success = AdofaiCSL.Load(modEntry);
+                if (!success) return false;
                 return true;
             }
             catch (Exception e)
@@ -28,9 +25,9 @@ namespace AdofaiCSL
 
         private static void LoadAssembly(string path)
         {
-            using (FileStream stream = new FileStream(path, FileMode.Open))
+            using (var stream = new FileStream(path, FileMode.Open))
             {
-                byte[] data = new byte[stream.Length];
+                var data = new byte[stream.Length];
                 stream.Read(data, 0, data.Length);
                 AppDomain.CurrentDomain.Load(data);
             }
