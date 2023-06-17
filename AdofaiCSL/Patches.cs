@@ -87,6 +87,8 @@ namespace AdofaiCSL
         private static CustomLevelTile CreateCustomPackTile(ref scnCLS instance, string songPath,
             out FolderDataCLS packData)
         {
+            AdofaiCSL.mod.Logger.Log($"Loading pack at {songPath}");
+
             // Add tile
             var packTile = Object.Instantiate(instance.tilePrefab, instance.floorContainer);
             packTile.name = "CustomTile";
@@ -150,8 +152,14 @@ namespace AdofaiCSL
                 var songs = Directory.GetDirectories(AdofaiCSL.customSongsPath);
                 foreach (var songPath in songs)
                 {
-                    if (Directory.GetFiles(songPath, "*.adofai").Length == 0)
+                    if (Directory.GetFiles(songPath, "main.adofai").Length == 0)
                     {
+                        if (Directory.GetFiles(songPath, "*.pack").Length == 0)
+                        {
+                            // No pack or adofai file
+                            continue;
+                        }
+
                         // Custom Pack
 
                         var CPTile = CreateCustomPackTile(ref __instance, songPath, out var packData);
