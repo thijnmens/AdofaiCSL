@@ -1,3 +1,8 @@
+# $${\textsf{\color{red}DEPRECATED}}$$
+This project was taken over by [@IkaOverride](https://github.com/IkaOverride) and is no longer being maintained,
+You can download their version [here](https://github.com/IkaOverride/AdofaiCSL)
+#
+
 # AdofaiCSL
 
 Custom Song Loader for non-workshop levels
